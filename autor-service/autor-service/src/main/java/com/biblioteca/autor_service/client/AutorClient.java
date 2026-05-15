@@ -17,31 +17,31 @@ import java.util.List;
 public class AutorClient {
 
     @Autowired
-    private WebClient autorsWebClient;
+    private WebClient autoresWebClient;
 
         /**
      * Obtiene los préstamos asociados a un usuario por su ID utilizando el
      * WebClient para hacer una solicitud GET al servicio de préstamos.
      * 
-     * @param userId Long - El ID del usuario para el cual se desean obtener los
+     * @param id Long - El ID del usuario para el cual se desean obtener los
      *               préstamos
      * @return List<LoanResponse> - La lista de préstamos asociados al usuario
      *         obtenidos del servicio de préstamos
      */
-    public List<AutorResponse> getLoansByUserId(Long userId) {
-        log.info("Fetching loans for user with ID: {}", userId);
+    public List<AutorResponse> getAutorById(Long id) {
+        log.info("Obteniendo autor con ID {}", id);
         try {
-            return autorsWebClient.get()
-                    .uri("/loans/user/{userId}", userId)
+            return autoresWebClient.get()
+                    .uri("/autores/{id}", id)
                     .retrieve()
                     .bodyToFlux(AutorResponse.class)
                     .collectList()
                     .block();
         } catch (WebClientResponseException ex) {
-            log.error("Error fetching loans for user with ID {}", userId, ex);
+            log.error("Error al obtener el autor con ID {}", id, ex);
             switch (ex.getStatusCode().value()) {
-                case 404 -> throw new NoSuchElementException("No loans found for user with ID " + userId);
-                default -> throw new RuntimeException("Error fetching loans for user with ID " + userId, ex);
+                case 404 -> throw new NoSuchElementException("No se encontraron autores con el ID " + id);
+                default -> throw new RuntimeException("Error al obtener el autor con ID " + id, ex);
             }
         }
     }

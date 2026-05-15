@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class CategoriaClient {
+public class InventarioClient {
 
     @Autowired
     private WebClient inventariosWebClient;
@@ -23,27 +23,26 @@ public class CategoriaClient {
      * Obtiene los préstamos asociados a un usuario por su ID utilizando el
      * WebClient para hacer una solicitud GET al servicio de préstamos.
      * 
-     * @param userId Long - El ID del usuario para el cual se desean obtener los
+     * @param id Long - El ID del usuario para el cual se desean obtener los
      *               préstamos
      * @return List<LoanResponse> - La lista de préstamos asociados al usuario
      *         obtenidos del servicio de préstamos
      */
-    public List<InventarioResponse> getLoansByUserId(Long userId) {
-        log.info("Fetching loans for user with ID: {}", userId);
+    public List<InventarioResponse> getInventarioById(Long id) {
+        log.info("Obteniendo Inventario con ID {}", id);
         try {
             return inventariosWebClient.get()
-                    .uri("/loans/user/{userId}", userId)
+                    .uri("/inventario/{id}", id)
                     .retrieve()
                     .bodyToFlux(InventarioResponse.class)
                     .collectList()
                     .block();
         } catch (WebClientResponseException ex) {
-            log.error("Error fetching loans for user with ID {}", userId, ex);
+            log.error("Error al obtener el Inventario con ID {}", id, ex);
             switch (ex.getStatusCode().value()) {
-                case 404 -> throw new NoSuchElementException("No loans found for user with ID " + userId);
-                default -> throw new RuntimeException("Error fetching loans for user with ID " + userId, ex);
+                case 404 -> throw new NoSuchElementException("No se encontraron inventarios con el ID  " + id);
+                default -> throw new RuntimeException("Error al obtener el Inventario con ID {}" + id, ex);
             }
         }
     }
 }
-

@@ -3,11 +3,14 @@ package com.biblioteca.inventario_service.mapper;
 import org.springframework.stereotype.Component;
 
 import com.biblioteca.inventario_service.model.Inventario;
+
+import lombok.Builder;
+
 import com.biblioteca.inventario_service.dto.InventarioRequest;
 import com.biblioteca.inventario_service.dto.InventarioResponse;
 
 @Component
-public class CategoriaMapper {
+public class InventarioMapper {
 
     /**
      * Convierte un AuthorRequest a una entidad Author. Toma los campos del

@@ -9,13 +9,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${services.authors.url}")
-    private String autorsServiceUrl;
+    @Value("${services.autores.url}")
+    private String autoresServiceUrl;
 
     @Bean
-    public WebClient authorsWebClient(){
+    public WebClient autoresWebClient(){
         return WebClient.builder()
-                    .baseUrl(autorsServiceUrl)
+                    .baseUrl(autoresServiceUrl)
                     .defaultHeader("Content-Type", "application/json")
                     .defaultHeader("Accept", "application/json")
                     .build();
