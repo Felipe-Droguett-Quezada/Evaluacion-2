@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/autores")
 @Slf4j
@@ -68,7 +67,7 @@ public class AutorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoAutor);
     }
 
-    //PUT
+    // PUT
     /**
      * Actualiza un autor existente por su ID.
      * 
@@ -80,12 +79,12 @@ public class AutorController {
      * @throws IllegalArgumentException Si el nuevo nombre ya existe en otro autor
      */
     @PutMapping("/{id}")
-    public ResponseEntity<AutorResponse> actualizarAutor(@PathVariable Long id,@Valid @RequestBody AutorRequest autor) {
+    public ResponseEntity<AutorResponse> actualizarAutor(@PathVariable Long id,
+            @Valid @RequestBody AutorRequest autor) {
         log.info("PUT /autores/{} - Actualizando autor con ID: {}", id);
         AutorResponse autorActualizado = autorService.actualizarAutor(id, autor);
-        return ResponseEntity.ok(autorActualizado); 
+        return ResponseEntity.ok(autorActualizado);
     }
-
 
     // DELETE
     /**
@@ -96,8 +95,8 @@ public class AutorController {
      * @throws NoSuchElementException Si no existe un autor con el ID proporcionado
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarAutor(@PathVariable Long id){
-        log.info("DELETE /autores/{} - Eliminando autor",id);
+    public ResponseEntity<String> eliminarAutor(@PathVariable Long id) {
+        log.info("DELETE /autores/{} - Eliminando autor", id);
         autorService.eliminarAutor(id);
         return ResponseEntity.ok("Autor eliminada correctamente");
     }

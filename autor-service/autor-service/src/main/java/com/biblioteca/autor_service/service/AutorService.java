@@ -15,19 +15,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
 @Service
 @Slf4j
 public class AutorService {
 
-
-
     @Autowired
     private AutorRepository autorRepository;
-    
+
     @Autowired
     private AutorMapper autorMapper;
-
 
     // LISTAR
     /**
@@ -110,7 +106,7 @@ public class AutorService {
         return autorMapper.toResponse(autorActualizado);
     }
 
-    // ELIMINAR 
+    // ELIMINAR
     /**
      * Elimina un autor del sistema
      * 
