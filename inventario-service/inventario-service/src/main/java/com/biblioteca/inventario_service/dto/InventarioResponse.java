@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InventarioResponse {
     private Long id;
-    private Integer strock;
+    private Integer stock;
+    private String nombreInventario;
 }

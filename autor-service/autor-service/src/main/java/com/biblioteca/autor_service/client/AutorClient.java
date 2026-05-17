@@ -19,30 +19,47 @@ public class AutorClient {
     @Autowired
     private WebClient autoresWebClient;
 
-        /**
-     * Obtiene los préstamos asociados a un usuario por su ID utilizando el
-     * WebClient para hacer una solicitud GET al servicio de préstamos.
+    /**
+     * Obtiene un autor por su ID (singular)
      * 
-     * @param id Long - El ID del usuario para el cual se desean obtener los
-     *               préstamos
-     * @return List<LoanResponse> - La lista de préstamos asociados al usuario
-     *         obtenidos del servicio de préstamos
+     * @param id ID del autor a buscar
+     * @return AutorResponse - Un solo autor
+     * @throws NoSuchElementException Si no existe el autor
      */
-    public List<AutorResponse> getAutorById(Long id) {
+    public AutorResponse getAutorById(Long id) { 
         log.info("Obteniendo autor con ID {}", id);
         try {
             return autoresWebClient.get()
                     .uri("/autores/{id}", id)
                     .retrieve()
+                    .bodyToMono(AutorResponse.class) 
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.error("Error al obtener el autor con ID {}", id, ex);
+            if (ex.getStatusCode().value() == 404) {
+                throw new NoSuchElementException("No se encontró el autor con ID: " + id); 
+            }
+            throw new RuntimeException("Error al obtener el autor con ID " + id, ex);
+        }
+    }
+    
+    /**
+     * Obtiene todos los autores registrados
+     * 
+     * @return List<AutorResponse> - Lista de todos los autores
+     */
+    public List<AutorResponse> getAllAutores() {
+        log.info("Obteniendo todos los autores");
+        try {
+            return autoresWebClient.get()
+                    .uri("/autores") // ✅ Sin /{id}
+                    .retrieve()
                     .bodyToFlux(AutorResponse.class)
                     .collectList()
                     .block();
         } catch (WebClientResponseException ex) {
-            log.error("Error al obtener el autor con ID {}", id, ex);
-            switch (ex.getStatusCode().value()) {
-                case 404 -> throw new NoSuchElementException("No se encontraron autores con el ID " + id);
-                default -> throw new RuntimeException("Error al obtener el autor con ID " + id, ex);
-            }
+            log.error("Error al obtener todos los autores", ex);
+            throw new RuntimeException("Error al obtener todos los autores", ex);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.biblioteca.categoria_service.dto;
+package com.biblioteca.inventario_service.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;

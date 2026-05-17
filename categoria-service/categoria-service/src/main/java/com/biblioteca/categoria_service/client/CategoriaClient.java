@@ -19,32 +19,47 @@ public class CategoriaClient {
     @Autowired
     private WebClient categoriasWebClient;
 
-        /**
-     * Obtiene los préstamos asociados a un usuario por su ID utilizando el
-     * WebClient para hacer una solicitud GET al servicio de préstamos.
-     * 
-     * @param id Long - El ID del usuario para el cual se desean obtener los
-     *               préstamos
-     * @return List<LoanResponse> - La lista de préstamos asociados al usuario
-     *         obtenidos del servicio de préstamos
+    /**
+     * Obtiene una categoría por su ID
+     * @param id ID de la categoría a buscar
+     * @return CategoriaResponse - La categoría encontrada
      */
-    public List<CategoriaResponse> getCategoriaById(Long id) {
-        log.info("Obtener categoria con id: {}", id);
+    public CategoriaResponse getCategoriaById(Long id) {  
+        log.info("Obteniendo categoría con ID {}", id);
         try {
             return categoriasWebClient.get()
-                    .uri("/categoria/{id}", id)
+                    .uri("/categorias/{id}", id)  
+                    .retrieve()
+                    .bodyToMono(CategoriaResponse.class)  
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.error("Error al obtener la categoría con ID {}", id, ex);
+            if (ex.getStatusCode().value() == 404) {
+                throw new NoSuchElementException("No se encontró la categoría con ID: " + id);
+            }
+            throw new RuntimeException("Error al obtener la categoría con ID " + id, ex);
+        }
+    }
+
+    /**
+     * Obtiene todas las categorías
+     * @return List<CategoriaResponse> - Lista de todas las categorías
+     */
+    public List<CategoriaResponse> getAllCategorias() {
+        log.info("Obteniendo todas las categorías");
+        try {
+            return categoriasWebClient.get()
+                    .uri("/categorias")
                     .retrieve()
                     .bodyToFlux(CategoriaResponse.class)
                     .collectList()
                     .block();
         } catch (WebClientResponseException ex) {
-            log.error("Error al obtener la categoria con ID {}", id, ex);
-            switch (ex.getStatusCode().value()) {
-                case 404 -> throw new NoSuchElementException("No se encontraron categorias con el ID " + id);
-                default -> throw new RuntimeException("Error al obtener la categoria con ID {}" + id, ex);
-            }
+            log.error("Error al obtener todas las categorías", ex);
+            throw new RuntimeException("Error al obtener todas las categorías", ex);
         }
     }
 }
+
 
 

@@ -1,21 +1,21 @@
 package com.biblioteca.inventario_service.controller;
 
-import com.biblioteca.inventario_service.model.Inventario;
 import com.biblioteca.inventario_service.service.InventarioService;
 import com.biblioteca.inventario_service.dto.InventarioRequest;
 import com.biblioteca.inventario_service.dto.InventarioResponse;
 
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventario")
+@RequestMapping("/inventarios")
 @Slf4j
 public class InventarioController {
 
@@ -24,34 +24,41 @@ public class InventarioController {
 
     // GET
     @GetMapping
-    public ResponseEntity<List<Inventario>> listar() {
-        log.info("GET /inventario - Solicitud para listar todo el inventario");
-        return ResponseEntity.ok(inventarioService.listarInventario());
+    public ResponseEntity<List<InventarioResponse>> listarInventarios() {
+        log.info("GET /inventarios - Solicitud para listar todos los inventarios");
+        List<InventarioResponse> inventarios = inventarioService.listarInventarios();
+        return ResponseEntity.ok(inventarios);
     }
 
     // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<Inventario> buscar(@PathVariable Long id) {
-        log.info("GET /inventario/{}", id, "Solicitamos inventario por ID: ", id);
-        return ResponseEntity.ok(inventarioService.buscarInventario(id));
+    public ResponseEntity<InventarioResponse> buscarInventario(@PathVariable Long id) {
+        log.info("GET /inventarios/{} - Buscando inventario con ID", id);
+        InventarioResponse inventario = inventarioService.buscarInventario(id);
+        return ResponseEntity.ok(inventario);
     }
 
     // POST
     @PostMapping
-    public ResponseEntity<Inventario> guardar(@RequestBody Inventario inventario){
-        return ResponseEntity.ok(inventarioService.guardarInventario(inventario));
+    public ResponseEntity<InventarioResponse> guardarInventario(@Valid @RequestBody InventarioRequest request) {
+        log.info("POST /inventarios - Creando nuevo inventario: {}", request.getNombreInventario());
+        InventarioResponse nuevoInventario = inventarioService.guardarInventario(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoInventario);
     }
 
     // PUT
     @PutMapping("/{id}")
     public ResponseEntity<InventarioResponse> actualizarInventario(@PathVariable Long id,@Valid @RequestBody InventarioRequest inventario) {
-        log.info("PUT /inventario/{}", id, "Actualizado el inventario con ID: ", id);
-        return ResponseEntity.ok(inventarioService.actualizarInventario(id, inventario));
+        log.info("PUT /inventarios/{} - Actualizando el inventario", id);
+        InventarioResponse inventarioActualizado = inventarioService.actualizarInventario(id, inventario);
+        return ResponseEntity.ok(inventarioActualizado);
     }
 
-    // DELETE
+    // DELETE    
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable Long id){inventarioService.eliminarInventario(id);
-        return ResponseEntity.ok("Inventario eliminado");
+    public ResponseEntity<String> eliminarInventario(@PathVariable Long id) {
+        log.info("DELETE /inventarios/{} - Eliminando el inventario", id);
+        inventarioService.eliminarInventario(id);
+        return ResponseEntity.ok("Inventario eliminado correctamente");
     }
 }

@@ -23,7 +23,10 @@ public class Inventario {
 
     private Long libroId;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private Integer stock;
+
+    @Column(nullable = false, length = 100)
+    private String nombreInventario;
 
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 @Slf4j
@@ -21,34 +22,70 @@ public class InventarioService {
     @Autowired
     private InventarioRepository inventarioRepository;
 
-    // LISTAR
-    public List<Inventario> listarInventario(){
-        return inventarioRepository.findAll();
+    @Autowired
+    private InventarioMapper inventarioMapper;
+
+    // LISTAR 
+    public List<InventarioResponse> listarInventarios() {
+        log.info("Listando todos los inventarios");
+        List<Inventario> inventarios = inventarioRepository.findAll();
+        return inventarios.stream()
+                .map(inventarioMapper::toResponse)
+                .toList();
     }
 
     // GUARDAR
-    public Inventario guardarInventario(Inventario inventario){
-        return inventarioRepository.save(inventario);
+    public InventarioResponse guardarInventario(InventarioRequest request) {
+        log.info("Guardando nuevo inventario: {}", request.getNombreInventario());
+
+        // Validar nombre duplicado
+        if (inventarioRepository.existsByNombreInventario(request.getNombreInventario())) {
+            throw new IllegalArgumentException("Ya existe un inventario con el nombre: " + request.getNombreInventario());
+        }
+
+        Inventario inventario = inventarioMapper.toEntity(request);
+        Inventario savedInventario = inventarioRepository.save(inventario);
+        log.info("Inventario guardado exitosamente con ID: {}", savedInventario.getId());
+        return inventarioMapper.toResponse(savedInventario);
     }
 
     // BUSCAR
-    public Inventario buscarInventario(Long id){
-        return inventarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
+    public InventarioResponse buscarInventario(Long id) {
+        log.info("Buscando inventario con ID: {}", id);
+        Inventario inventario = inventarioRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el inventario con ID: " + id));
+        return inventarioMapper.toResponse(inventario);
     }
 
     // ACTUALIZAR
     public InventarioResponse actualizarInventario(Long id, InventarioRequest inventarioRequest) {
-        log.info("Actualizando el inventario con el id: {}", id);
+        log.info("Actualizando inventario con el id: {}", id);
         Inventario existeInventario = inventarioRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontro el Inventario con el id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontro el inventario con el id: " + id));
 
+        // Validar nombre duplicado si cambió
+        if (!existeInventario.getNombreInventario().equals(inventarioRequest.getNombreInventario()) &&
+                inventarioRepository.existsByNombreInventario(inventarioRequest.getNombreInventario())) {
+            throw new IllegalArgumentException("Ya existe otro inventario con el nombre: " + inventarioRequest.getNombreInventario());
+        }
+
+        existeInventario.setNombreInventario(inventarioRequest.getNombreInventario());
         existeInventario.setStock(inventarioRequest.getStock());
+
         Inventario inventarioActualizado = inventarioRepository.save(existeInventario);
-        return InventarioMapper.toResponse(inventarioActualizado);
+        log.info("Inventario actualizado exitosamente con ID: {}", inventarioActualizado.getId());
+        return inventarioMapper.toResponse(inventarioActualizado);
     }
 
     // ELIMINAR
-    public void eliminarInventario(Long id){
+    public void eliminarInventario(Long id) {
+        log.info("Eliminando el inventario con ID: {}", id);
+
+        if (!inventarioRepository.existsById(id)) {
+            throw new NoSuchElementException("No se encontró el inventario con ID: " + id);
+        }
+
         inventarioRepository.deleteById(id);
+        log.info("Inventario eliminado exitosamente con ID: {}", id);
     }
 }

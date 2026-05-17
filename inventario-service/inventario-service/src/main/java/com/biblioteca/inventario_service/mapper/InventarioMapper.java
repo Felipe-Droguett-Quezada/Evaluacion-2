@@ -28,6 +28,7 @@ public class InventarioMapper {
     public Inventario toEntity(InventarioRequest request) {
         return Inventario.builder()
                 .stock(request.getStock())
+                .nombreInventario(request.getNombreInventario())
                 .build();
     }
         /**
@@ -44,7 +45,8 @@ public class InventarioMapper {
     public InventarioResponse toResponse(Inventario inventario) {
         return InventarioResponse.builder()
                 .id(inventario.getId())
-                .stock(inventario.getStock())                
+                .stock(inventario.getStock())
+                .nombreInventario(inventario.getNombreInventario())                
                 .build();
     }
 
